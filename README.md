@@ -42,7 +42,8 @@ devices-api/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── go.mod
-├── go.sum
+├── go.sum (generated on go mod tidy)
+├── .env.example
 └── README.md
 ```
 
@@ -51,41 +52,69 @@ devices-api/
 ### Prerequisites
 
 - Go 1.23+
-- Docker & Docker Compose
-- PostgreSQL (if running locally without Docker)
+- Docker & Docker Compose (recommended)
+- PostgreSQL (optional for local non-Docker dev)
+- `swag` CLI for regenerating Swagger docs (optional): `go install github.com/swaggo/swag/cmd/swag@latest`
 
-### Running with Docker (Recommended)
+### Running with Docker (Recommended - Zero Setup)
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/digitalmaxing/devices-api.git
    cd devices-api
+   cp .env.example .env   # optional, defaults work
    ```
 
-2. Start the services:
+2. Start everything (builds image, starts Postgres + API with healthchecks):
    ```bash
-   docker-compose up --build
+   docker-compose up --build -d
    ```
 
-3. The API will be available at `http://localhost:8080`
+3. API available at http://localhost:8080
+   - Swagger UI: http://localhost:8080/swagger/index.html (interactive docs & testing)
+   - Health: http://localhost:8080/health
 
-4. Access Swagger UI at `http://localhost:8080/swagger/index.html`
+4. Stop: `docker-compose down`
 
-### Environment Variables
+### Running Locally (Go + Postgres required)
 
-See `.env.example` (create from it or use docker-compose defaults).
+1. Start Postgres (or use Docker for DB only):
+   ```bash
+   docker run -d --name pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=devices -p 5432:5432 postgres:16
+   ```
 
-## API Endpoints
+2. Set env and run:
+   ```bash
+   export DB_HOST=localhost DB_USER=postgres DB_PASSWORD=postgres DB_NAME=devices
+   go run ./cmd/api
+   ```
 
-See Swagger documentation for full details and examples.
+### Generate / Update Swagger Docs
 
-### Devices
+After code changes:
+```bash
+swag init --parseDependency --parseInternal -g cmd/api/main.go
+```
+Then rebuild/restart to see updated docs at /swagger.
 
-- `POST /devices` - Create a new device
-- `GET /devices` - List all devices (supports ?brand=...&state=...)
-- `GET /devices/:id` - Get device by ID
-- `PATCH /devices/:id` - Partially update device
-- `DELETE /devices/:id` - Delete device
+### Testing
+
+```bash
+go test ./... -v -cover
+```
+Current coverage focuses on service layer validations and core flows (expandable with more handler/integration tests).
+
+### Example API Usage (via curl or Swagger)
+
+Create device:
+```bash
+curl -X POST http://localhost:8080/devices -H "Content-Type: application/json" -d '{"name":"Pixel 8","brand":"Google","state":"available"}'
+```
+
+List by brand:
+```bash
+curl "http://localhost:8080/devices?brand=Apple"
+```
 
 ## Domain Validations
 
@@ -93,28 +122,25 @@ See Swagger documentation for full details and examples.
 - Name and Brand cannot be changed if device state is "in-use"
 - Devices in "in-use" state cannot be deleted
 
-## Testing
-
-```bash
-go test ./... -v
-```
-
 ## Future Improvements
 
 - Add authentication & authorization (JWT)
 - Rate limiting and request logging middleware
-- Health check endpoints (/health, /ready)
 - Structured logging with zap or zerolog
 - CI/CD pipeline with GitHub Actions
-- Database migrations with golang-migrate
+- Database migrations with golang-migrate (instead of AutoMigrate)
 - Metrics with Prometheus
-- Better error handling with custom error types
+- Better error handling with custom error types and HTTP status mapping
+- Integration tests with testcontainers
 
-## Notes / Known Limitations
+## Notes / Known Limitations (per tips)
 
 - Uses GORM AutoMigrate for simplicity (production would use proper migrations)
-- In-memory DB option not used; always Postgres
-- Partial updates use map for flexibility
+- No in-memory DB fallback (always requires Postgres per requirements)
+- Partial updates implemented with map[string]interface{} for flexibility
+- Error handling is basic string-based (could improve with sentinel errors)
+- No auth/rate limiting yet (production readiness partial)
+- go.sum will be generated on first `go mod tidy` after clone
 
 ## License
 
