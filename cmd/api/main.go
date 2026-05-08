@@ -42,6 +42,17 @@ func main() {
 	}
 	r := gin.Default()
 
+	// Root welcome page
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message":     "Devices API is running \ud83d\ude80",
+			"version":     "1.0",
+			"health":      "/health",
+			"devices":     "/devices",
+			"documentation": "See README.md for full API reference and examples",
+		})
+	})
+
 	// Health check for container orchestration / k8s
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "healthy", "service": "devices-api"})
