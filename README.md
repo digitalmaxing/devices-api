@@ -136,7 +136,6 @@ curl "http://localhost:8080/devices?brand=Apple"
 - No in-memory DB fallback (always requires Postgres per requirements)
 - Partial updates implemented with map[string]interface{} for flexibility
 - Error handling is basic string-based (could improve with sentinel errors)
-- go.sum will be generated on first `go mod tidy` after clone
 
 ## License
 

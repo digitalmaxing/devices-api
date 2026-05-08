@@ -45,7 +45,7 @@ func main() {
 	// Root welcome page
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message":     "Devices API is running \ud83d\ude80",
+			"message":     "Devices API is running",
 			"version":     "1.0",
 			"health":      "/health",
 			"devices":     "/devices",
