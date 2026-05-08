@@ -1,6 +1,15 @@
 # Devices API
 
-A RESTful API for managing device resources, built with Go.
+**REST API for managing device resources** — built with Go + PostgreSQL.
+
+## TL;DR (Quick Start)
+
+```bash
+docker-compose up --build -d
+./scripts/test-api.sh
+```
+
+That's it. The second command runs 20+ automated tests covering all functionality and domain validations.
 
 ## Features
 
@@ -9,7 +18,7 @@ A RESTful API for managing device resources, built with Go.
 - Domain validations enforced (e.g., cannot update name/brand for in-use devices, cannot delete in-use devices)
 - Persistent storage with PostgreSQL
 - Containerized with Docker
-- Comprehensive test coverage
+- Comprehensive automated test suite
 
 ## Tech Stack
 
