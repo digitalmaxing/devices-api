@@ -1,23 +1,31 @@
 package handlers
 
 import (
-	"errors"
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
 	"github.com/digitalmaxing/devices-api/internal/models"
-	"github.com/digitalmaxing/devices-api/internal/service"
 )
 
 // DeviceHandler handles HTTP requests for device operations.
 type DeviceHandler struct {
-	service *service.DeviceService
+	service DeviceService
 }
 
-// NewDeviceHandler creates a new handler with injected service.
-func NewDeviceHandler(svc *service.DeviceService) *DeviceHandler {
+// DeviceService defines the interface required by the handler.
+// This allows easy mocking in tests.
+type DeviceService interface {
+	CreateDevice(ctx context.Context, device *models.Device) (*models.Device, error)
+	GetDevice(ctx context.Context, id uuid.UUID) (*models.Device, error)
+	ListDevices(ctx context.Context, brand, state string) ([]models.Device, error)
+	UpdateDevice(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.Device, error)
+	DeleteDevice(ctx context.Context, id uuid.UUID) error
+}
+
+func NewDeviceHandler(svc DeviceService) *DeviceHandler {
 	return &DeviceHandler{service: svc}
 }
 
@@ -73,7 +81,7 @@ func (h *DeviceHandler) GetDevice(c *gin.Context) {
 
 	device, err := h.service.GetDevice(c.Request.Context(), id)
 	if err != nil {
-		if errors.Is(err, errors.New("device not found")) || err.Error() == "device not found" {
+		if err.Error() == "device not found" {
 			respondError(c, http.StatusNotFound, "device not found")
 			return
 		}

@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/google/uuid"
@@ -10,7 +9,6 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/digitalmaxing/devices-api/internal/models"
-	"github.com/digitalmaxing/devices-api/internal/repository"
 )
 
 // mockDeviceRepository is a testify mock for the repository interface.
