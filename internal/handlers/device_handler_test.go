@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -157,5 +158,46 @@ func TestDeleteDevice(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
+	mockSvc.AssertExpectations(t)
+}
+
+// === Additional Sanity + Coverage Tests ===
+
+func TestCreateDevice_InvalidJSON(t *testing.T) {
+	router, _ := setupTestRouter()
+
+	req, _ := http.NewRequest("POST", "/devices", bytes.NewBuffer([]byte("invalid json")))
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestGetDevice_InvalidUUID(t *testing.T) {
+	router, _ := setupTestRouter()
+
+	req, _ := http.NewRequest("GET", "/devices/not-a-uuid", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestUpdateDevice_ValidationError(t *testing.T) {
+	router, mockSvc := setupTestRouter()
+	id := uuid.New()
+
+	mockSvc.On("UpdateDevice", mock.Anything, id, mock.Anything).Return(nil, errors.New("name cannot be updated for in-use device"))
+
+	body, _ := json.Marshal(map[string]string{"name": "New Name"})
+	req, _ := http.NewRequest("PATCH", "/devices/"+id.String(), bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 	mockSvc.AssertExpectations(t)
 }
