@@ -1,13 +1,13 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
 	"github.com/digitalmaxing/devices-api/internal/models"
-	"github.com/digitalmaxing/devices-api/internal/service"
 )
 
 // DeviceHandler handles HTTP requests for device operations.
