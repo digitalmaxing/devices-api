@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -18,11 +19,11 @@ type DeviceHandler struct {
 // DeviceService defines the interface required by the handler.
 // This allows easy mocking in tests.
 type DeviceService interface {
-	CreateDevice(ctx interface{}, device *models.Device) (*models.Device, error)
-	GetDevice(ctx interface{}, id uuid.UUID) (*models.Device, error)
-	ListDevices(ctx interface{}, brand, state string) ([]models.Device, error)
-	UpdateDevice(ctx interface{}, id uuid.UUID, updates map[string]interface{}) (*models.Device, error)
-	DeleteDevice(ctx interface{}, id uuid.UUID) error
+	CreateDevice(ctx context.Context, device *models.Device) (*models.Device, error)
+	GetDevice(ctx context.Context, id uuid.UUID) (*models.Device, error)
+	ListDevices(ctx context.Context, brand, state string) ([]models.Device, error)
+	UpdateDevice(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.Device, error)
+	DeleteDevice(ctx context.Context, id uuid.UUID) error
 }
 
 func NewDeviceHandler(svc DeviceService) *DeviceHandler {

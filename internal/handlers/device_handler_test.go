@@ -20,7 +20,7 @@ type mockDeviceService struct {
 	mock.Mock
 }
 
-func (m *mockDeviceService) CreateDevice(ctx interface{}, device *models.Device) (*models.Device, error) {
+func (m *mockDeviceService) CreateDevice(ctx context.Context, device *models.Device) (*models.Device, error) {
 	args := m.Called(ctx, device)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -28,7 +28,7 @@ func (m *mockDeviceService) CreateDevice(ctx interface{}, device *models.Device)
 	return args.Get(0).(*models.Device), args.Error(1)
 }
 
-func (m *mockDeviceService) GetDevice(ctx interface{}, id uuid.UUID) (*models.Device, error) {
+func (m *mockDeviceService) GetDevice(ctx context.Context, id uuid.UUID) (*models.Device, error) {
 	args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -36,12 +36,12 @@ func (m *mockDeviceService) GetDevice(ctx interface{}, id uuid.UUID) (*models.De
 	return args.Get(0).(*models.Device), args.Error(1)
 }
 
-func (m *mockDeviceService) ListDevices(ctx interface{}, brand, state string) ([]models.Device, error) {
+func (m *mockDeviceService) ListDevices(ctx context.Context, brand, state string) ([]models.Device, error) {
 	args := m.Called(ctx, brand, state)
 	return args.Get(0).([]models.Device), args.Error(1)
 }
 
-func (m *mockDeviceService) UpdateDevice(ctx interface{}, id uuid.UUID, updates map[string]interface{}) (*models.Device, error) {
+func (m *mockDeviceService) UpdateDevice(ctx context.Context, id uuid.UUID, updates map[string]interface{}) (*models.Device, error) {
 	args := m.Called(ctx, id, updates)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -49,7 +49,7 @@ func (m *mockDeviceService) UpdateDevice(ctx interface{}, id uuid.UUID, updates 
 	return args.Get(0).(*models.Device), args.Error(1)
 }
 
-func (m *mockDeviceService) DeleteDevice(ctx interface{}, id uuid.UUID) error {
+func (m *mockDeviceService) DeleteDevice(ctx context.Context, id uuid.UUID) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
