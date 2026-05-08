@@ -82,7 +82,7 @@ func TestCreateDevice(t *testing.T) {
 		State: models.StateAvailable,
 	}
 
-	mockSvc.On("CreateDevice", mock.Anything, mock.AnythingOfType("*models.Device")).Return(device, nil)
+	mockSvc.On("CreateDevice", mock.Anything, mock.Anything).Return(device, nil)
 
 	body, _ := json.Marshal(map[string]string{
 		"name":  "Test Device",
