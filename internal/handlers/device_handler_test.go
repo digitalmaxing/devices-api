@@ -87,6 +87,7 @@ func TestCreateDevice(t *testing.T) {
 	body, _ := json.Marshal(map[string]string{
 		"name":  "Test Device",
 		"brand": "Test Brand",
+		"state": "available",
 	})
 	req, _ := http.NewRequest("POST", "/devices", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
