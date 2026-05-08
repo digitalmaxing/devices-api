@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/digitalmaxing/devices-api/internal/models"
-	"github.com/digitalmaxing/devices-api/internal/service"
 )
 
 // mockDeviceService is a mock for the service layer

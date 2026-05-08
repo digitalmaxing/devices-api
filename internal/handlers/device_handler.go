@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,11 +12,20 @@ import (
 
 // DeviceHandler handles HTTP requests for device operations.
 type DeviceHandler struct {
-	service *service.DeviceService
+	service DeviceService
 }
 
-// NewDeviceHandler creates a new handler with injected service.
-func NewDeviceHandler(svc *service.DeviceService) *DeviceHandler {
+// DeviceService defines the interface required by the handler.
+// This allows easy mocking in tests.
+type DeviceService interface {
+	CreateDevice(ctx interface{}, device *models.Device) (*models.Device, error)
+	GetDevice(ctx interface{}, id uuid.UUID) (*models.Device, error)
+	ListDevices(ctx interface{}, brand, state string) ([]models.Device, error)
+	UpdateDevice(ctx interface{}, id uuid.UUID, updates map[string]interface{}) (*models.Device, error)
+	DeleteDevice(ctx interface{}, id uuid.UUID) error
+}
+
+func NewDeviceHandler(svc DeviceService) *DeviceHandler {
 	return &DeviceHandler{service: svc}
 }
 
@@ -73,7 +81,7 @@ func (h *DeviceHandler) GetDevice(c *gin.Context) {
 
 	device, err := h.service.GetDevice(c.Request.Context(), id)
 	if err != nil {
-		if errors.Is(err, errors.New("device not found")) || err.Error() == "device not found" {
+		if err.Error() == "device not found" {
 			respondError(c, http.StatusNotFound, "device not found")
 			return
 		}
